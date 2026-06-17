@@ -39,9 +39,20 @@ The notebook loads and resamples each stroke to a fixed length, and trains sever
 
 ### Results
 
+| Method | Params | Accuracy | Latency (ms) |
+|--------|-------:|---------:|-------------:|
+| LSTM-64 | 19,760 | 0.975 | 145.7 |
+| LSTM-48 | 11,368 | 0.931 | 145.2 |
+| LSTM-32 | 5,280 | 0.956 | 150.9 |
+| LSTM-24 | 3,100 | 0.863 | 147.5 |
+| LSTM-16 | 1,496 | 0.812 | 145.3 |
+| LSTM-8 | 468 | 0.375 | 147.1 |
+| LSTM-4 | 170 | 0.463 | 145.2 |
+| $1 (5/class) | – | 0.919 | 164.5 |
+
 Accuracy, latency and parameter count across the LSTM sizes and the $1 recognizer:
 
-![Accuracy, latency and parameter count](plots/accuracy_latency_paramtercount.png)
+![Accuracy, latency and parameter count](plots/accuracy_latency_parametercount.png)
 
 Confusion matrices on the recorded test set, for the best LSTM and the $1 recognizer:
 
@@ -69,7 +80,7 @@ python gesture_recorder.py
 
 ## 3. Gesture Detection Game
 
-[`gesture_application.py`](gesture_application.py) is a drawn **Rock-Paper-Scissors** duel: draw your move, the computer picks one, first to three round wins takes the match. The drawn move (**circle = rock**, **rectangle = paper**, **V = scissors**) is recognized with the **$1 recognizer** from task 1. For just these three well-separated shapes $1 is as accurate as an LSTM while needing no training and no TensorFlow, so the game starts instantly. The notebook trains an equivalent 3-class LSTM only for comparison.
+[`gesture_application.py`](gesture_application.py) is a drawn **Rock-Paper-Scissors** duel: draw your move, the computer picks one, first to three wins. The move (**circle = rock**, **rectangle = paper**, **V = scissors**) is recognized with the **$1 recognizer** from task 1, using 5 templates per class. For three shapes this different $1 is accurate enough and needs no model file, so the game runs straight away. A 3-class LSTM on the same gestures is trained at the end of [`unistroke_gestures.ipynb`](unistroke_gestures.ipynb), only for comparison.
 
 ```bash
 python gesture_application.py

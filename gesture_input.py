@@ -12,34 +12,22 @@ WINDOW_W, WINDOW_H = 600, 650
 
 BG_GL = (248 / 255, 248 / 255, 250 / 255, 1.0)
 
-OFF_WHITE     = (248, 248, 250)
-LIGHT_GRAY    = (229, 229, 234)
 CANVAS_FILL   = (235, 242, 255)
 CANVAS_BORDER = (100, 140, 210)
 TEXT_DARK     = (28,  28,  30)
 TEXT_GRAY     = (142, 142, 147)
-
-APPLE_RED    = (255,  59,  48)
-APPLE_BLUE   = (0,   122, 255)
-APPLE_GREEN  = (52,  199,  89)
-APPLE_ORANGE = (255, 149,   0)
+STROKE        = (0, 122, 255)   # colour of the drawn stroke
 
 FONT = "Arial"
 
 CANVAS_X1 = 18
-CANVAS_Y1 = 42
+CANVAS_Y1 = 78
 CANVAS_X2 = 582
-CANVAS_Y2 = 592
+CANVAS_Y2 = 590
 CANVAS_W  = CANVAS_X2 - CANVAS_X1
 CANVAS_H  = CANVAS_Y2 - CANVAS_Y1
 
-GESTURE_COLORS = {
-    "rectangle": APPLE_BLUE,
-    "circle":    APPLE_ORANGE,
-    "check":     APPLE_GREEN,
-    "delete":    APPLE_RED,
-    "pigtail":   (175, 82, 222),
-}
+SHAPES = "rectangle    circle    check    delete    pigtail"
 
 GESTURE_FILES = {
     "rectangle": "rectangle",
@@ -108,23 +96,13 @@ class GestureInputApp:
         self._stroke_lines = []
         self._stroke_batch = pyglet.graphics.Batch()
 
-        # title
-        _title = pyglet.text.Label(
-            "Gesture Recognizer",
-            font_name=FONT, font_size=22,
-            x=WINDOW_W // 2, y=630,
+        # result text, one colour, goes bold once a gesture is recognized
+        self._status_lbl = pyglet.text.Label(
+            "Draw a gesture",
+            font_name=FONT, font_size=16,
+            x=WINDOW_W // 2, y=620,
             anchor_x="center", anchor_y="center",
             color=_rgba(TEXT_DARK),
-            batch=self.batch, group=g3)
-        _title.bold = True
-
-        # gesture list / result text
-        self._status_lbl = pyglet.text.Label(
-            "Draw:  rectangle  ·  circle  ·  check  ·  delete  ·  pigtail",
-            font_name=FONT, font_size=13,
-            x=WINDOW_W // 2, y=607,
-            anchor_x="center", anchor_y="center",
-            color=_rgba(TEXT_GRAY),
             batch=self.batch, group=g3)
 
         # canvas border
@@ -144,10 +122,19 @@ class GestureInputApp:
             color=_rgba(TEXT_GRAY),
             batch=self.batch, group=g3)
 
-        pyglet.text.Label(
+        # supported shapes, below the drawing field
+        self._shapes_lbl = pyglet.text.Label(
+            SHAPES,
+            font_name=FONT, font_size=13,
+            x=WINDOW_W // 2, y=52,
+            anchor_x="center", anchor_y="center",
+            color=_rgba(TEXT_GRAY),
+            batch=self.batch, group=g3)
+
+        self._controls_lbl = pyglet.text.Label(
             "Release mouse to recognize  ·  R to clear  ·  Q to quit",
             font_name=FONT, font_size=11,
-            x=WINDOW_W // 2, y=20,
+            x=WINDOW_W // 2, y=26,
             anchor_x="center", anchor_y="center",
             color=_rgba(TEXT_GRAY),
             batch=self.batch, group=g3)
@@ -160,7 +147,7 @@ class GestureInputApp:
         self._stroke_lines = []
         if len(self.stroke_points) < 2:
             return
-        color = (*APPLE_BLUE, 210)
+        color = _rgba(STROKE, 210)
         for i in range(1, len(self.stroke_points)):
             p1, p2 = self.stroke_points[i - 1], self.stroke_points[i]
             line = pyglet.shapes.Line(
@@ -169,9 +156,9 @@ class GestureInputApp:
                 batch=self._stroke_batch)
             self._stroke_lines.append(line)
 
-    def _set_status(self, text, color=None):
+    def _set_status(self, text, bold=False):
         self._status_lbl.text = text
-        self._status_lbl.color = _rgba(color if color is not None else TEXT_GRAY)
+        self._status_lbl.bold = bold
 
     def clear(self):
         self.drawing = False
@@ -180,7 +167,7 @@ class GestureInputApp:
         self._stroke_batch = pyglet.graphics.Batch()
         self._stroke_lines = []
         self._canvas_hint.color = _rgba(TEXT_GRAY)
-        self._set_status("Draw:  rectangle  ·  circle  ·  check  ·  delete  ·  pigtail")
+        self._set_status("Draw a gesture")
 
     def on_mouse_press(self, x, y, button, _modifiers):
         if button != pyglet.window.mouse.LEFT or not self._in_canvas(x, y):
@@ -189,7 +176,7 @@ class GestureInputApp:
         self.stroke_points = [(x, y)]
         self.result = None
         self._canvas_hint.color = (0, 0, 0, 0)
-        self._set_status("Recording unistroke…", APPLE_BLUE)
+        self._set_status("Recording unistroke…")
         self._rebuild_stroke()
 
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
@@ -205,20 +192,13 @@ class GestureInputApp:
             return
         self.drawing = False
         if len(self.stroke_points) < 10:
-            self._set_status("Too short – draw again", APPLE_RED)
+            self._set_status("Too short, draw again")
             return
         t0 = time.perf_counter()
         name, score = self.recognizer.recognize(self.stroke_points)
         elapsed_ms = (time.perf_counter() - t0) * 1000
         self.result = name
-        color = GESTURE_COLORS.get(name, APPLE_BLUE)
-        self._set_status(
-            f"Result: {name}  ({score:.2f})  in {elapsed_ms:.0f} ms.",
-            color
-        )
-        result_color = (*color, 210)
-        for line in self._stroke_lines:
-            line.color = result_color
+        self._set_status(f"detected {name}  ({score:.2f})  in {elapsed_ms:.0f} ms", bold=True)
 
     def draw(self):
         self.batch.draw()

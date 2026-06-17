@@ -9,9 +9,13 @@ import pyglet.shapes
 from recognizer import Recognizer
 from gesture_input import (
     FONT, BG_GL, CANVAS_FILL, CANVAS_BORDER, TEXT_DARK, TEXT_GRAY,
-    APPLE_RED, APPLE_GREEN, APPLE_BLUE,
     _template_paths, _load_points, _preprocess,
 )
+
+# outcome colours (win / lose, and the drawing pen)
+APPLE_RED = (255, 59, 48)
+APPLE_GREEN = (52, 199, 89)
+APPLE_BLUE = (0, 122, 255)
 
 WINDOW_W, WINDOW_H = 600, 720
 
