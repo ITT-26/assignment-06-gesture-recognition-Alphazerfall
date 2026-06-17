@@ -18,7 +18,7 @@ It is trained with **five templates per class**, taken from the Wobbrock logs (o
 
 ### Input UI
 
-[`gesture_input.py`](gesture_input.py) is a small pyglet window where you draw a gesture with the mouse. On release the stroke is recognized and the result (name, score, time in ms) is shown below the canvas.
+[`gesture_input.py`](gesture_input.py) is a small pyglet window where you draw a gesture with the mouse. On release the stroke is recognized and the result (name, score, time in ms) is shown above the canvas.
 
 ```bash
 python gesture_input.py
@@ -33,7 +33,7 @@ python gesture_input.py
 
 ## 2. Comparing Gesture Recognizers
 
-The comparison is reported in [`unistroke_gestures.ipynb`](unistroke_gestures.ipynb). The LSTM is trained on the Wobbrock logs in `datasets/wobbrock/`; the test set is the gestures I recorded myself (`datasets/custom/`).
+The comparison is reported in [`unistroke_gestures.ipynb`](unistroke_gestures.ipynb). The LSTM is trained on the Wobbrock logs in `datasets/wobbrock/`, the test set is the gestures I recorded myself (`datasets/custom/`).
 
 The notebook loads and resamples each stroke to a fixed length, and trains several versions with decreasing parameter counts (from `LSTM-64` down to `LSTM-4`) and runs the $1 recognizer with 5 random templates per class on the same test set. Accuracy and per-sample prediction time of all versions are compared, with confusion matrices and a short discussion of which to pick for a real application.
 

@@ -17,4 +17,7 @@ Thumbs.db
 # PyCharm
 .idea/
 
+# Jupyter
+.ipynb_checkpoints/
+
 datasets/wobbrock/
