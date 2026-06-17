@@ -181,8 +181,7 @@ class GestureRecorder:
             x1, y1, _ = self.stroke[i - 1]
             x2, y2, _ = self.stroke[i]
             self.stroke_lines.append(
-                pyglet.shapes.Line(x1, y1, x2, y2, 3, color=c,
-                                   batch=self.stroke_batch))
+                pyglet.shapes.Line(x1, y1, x2, y2, 3, color=c, batch=self.stroke_batch))
 
     def clear_stroke(self):
         self.stroke = []

@@ -33,9 +33,21 @@ python gesture_input.py
 
 ## 2. Comparing Gesture Recognizers
 
-The comparison is reported in [`unistroke_gestures.ipynb`](unistroke_gestures.ipynb). The LSTM is trained on the Wobbrock logs in `datasets/wobbrock/`; the test set is the gestures I recorded myself (`datasets/custom/`). If no recordings exist, the notebook falls back to a random split of the Wobbrock data so it still runs.
+The comparison is reported in [`unistroke_gestures.ipynb`](unistroke_gestures.ipynb). The LSTM is trained on the Wobbrock logs in `datasets/wobbrock/`; the test set is the gestures I recorded myself (`datasets/custom/`).
 
-The notebook loads and resamples each stroke to a fixed length, trains a baseline LSTM, then trains three versions with decreasing parameter counts (`LSTM-64`, `LSTM-32`, `LSTM-16`) and runs the $1 recognizer on the same test set. Accuracy and per-sample prediction time of all versions are compared, with confusion matrices and a short discussion of which to pick for a real application.
+The notebook loads and resamples each stroke to a fixed length, and trains several versions with decreasing parameter counts (from `LSTM-64` down to `LSTM-4`) and runs the $1 recognizer with 5 random templates per class on the same test set. Accuracy and per-sample prediction time of all versions are compared, with confusion matrices and a short discussion of which to pick for a real application.
+
+### Results
+
+Accuracy, latency and parameter count across the LSTM sizes and the $1 recognizer:
+
+![Accuracy, latency and parameter count](plots/accuracy_latency_paramtercount.png)
+
+Confusion matrices on the recorded test set, for the best LSTM and the $1 recognizer:
+
+![LSTM-48 confusion matrix](plots/confusion_matrix_LSTM-48.png)
+
+![$1 recognizer confusion matrix](plots/confusion_matrix_1-Dollar.png)
 
 ### Recording a test set
 
@@ -57,9 +69,7 @@ python gesture_recorder.py
 
 ## 3. Gesture Detection Game
 
-[`gesture_application.py`](gesture_application.py) is a drawn **Rock-Paper-Scissors** duel: draw your move, the computer picks one, first to three round wins takes the match. The drawn move is classified by a small three-class LSTM (**circle = rock**, **rectangle = paper**, **V = scissors**) trained in the notebook and saved as `rps_model.keras`.
-
-Run the *Rock-Paper-Scissors classifier* cell in [`unistroke_gestures.ipynb`](unistroke_gestures.ipynb) once to create `rps_model.keras`, then start the game:
+[`gesture_application.py`](gesture_application.py) is a drawn **Rock-Paper-Scissors** duel: draw your move, the computer picks one, first to three round wins takes the match. The drawn move (**circle = rock**, **rectangle = paper**, **V = scissors**) is recognized with the **$1 recognizer** from task 1. For just these three well-separated shapes $1 is as accurate as an LSTM while needing no training and no TensorFlow, so the game starts instantly. The notebook trains an equivalent 3-class LSTM only for comparison.
 
 ```bash
 python gesture_application.py
